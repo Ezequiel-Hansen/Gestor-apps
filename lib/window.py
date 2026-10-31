@@ -7,7 +7,13 @@ import threading
 
 
 def _prepare_gtk_environment():
-    snap_roots = tuple(
+    snap_roots = [
+        "/snap",
+        "/var/snap",
+        "/var/lib/snapd",
+        os.path.join(os.path.expanduser("~"), "snap"),
+    ]
+    snap_roots.extend(
         os.environ[name]
         for name in ("SNAP", "SNAP_DATA", "SNAP_USER_DATA", "SNAP_USER_COMMON")
         if os.environ.get(name)
