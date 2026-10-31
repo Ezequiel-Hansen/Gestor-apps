@@ -58,6 +58,7 @@ También se acepta `--uninstall`. Esto elimina la aplicación instalada, su coma
 |---|---|
 | `No encuentro la carpeta lib` | Comprueba que ejecutas `install.sh` desde una copia completa del proyecto y que `lib/` está junto al instalador. |
 | Falta GTK o PyGObject | Vuelve a ejecutar `./install.sh`; en Ubuntu/Debian instalará `python3-gi` y `gir1.2-gtk-3.0` si faltan. |
+| No inicia en una sesión Wayland | Si XWayland está disponible, la aplicación lo usa automáticamente para evitar incompatibilidades del backend Wayland de GTK 3 con algunos esquemas recientes de GNOME. |
 | `gestor-apps: command not found` | Abre una nueva sesión o usa `"$HOME/.local/bin/gestor-apps"`. |
 | No se pueden desinstalar paquetes del sistema | Comprueba que `pkexec` está instalado y que polkit está disponible en tu sesión. |
 

@@ -5,6 +5,48 @@ import re
 import subprocess
 import threading
 
+
+def _prepare_gtk_environment():
+    snap_roots = tuple(
+        os.environ[name]
+        for name in ("SNAP", "SNAP_DATA", "SNAP_USER_DATA", "SNAP_USER_COMMON")
+        if os.environ.get(name)
+    )
+    gtk_path_variables = (
+        "GSETTINGS_SCHEMA_DIR",
+        "GI_TYPELIB_PATH",
+        "GTK_EXE_PREFIX",
+        "GTK_PATH",
+        "GIO_MODULE_DIR",
+        "GDK_PIXBUF_MODULEDIR",
+        "GDK_PIXBUF_MODULE_FILE",
+        "GTK_IM_MODULE_FILE",
+    )
+    for name in gtk_path_variables:
+        value = os.environ.get(name)
+        if not value:
+            continue
+        paths = value.split(os.pathsep)
+        filtered_paths = [
+            path
+            for path in paths
+            if not any(path == root or path.startswith(root + os.sep) for root in snap_roots)
+        ]
+        if len(filtered_paths) != len(paths):
+            if filtered_paths:
+                os.environ[name] = os.pathsep.join(filtered_paths)
+            else:
+                os.environ.pop(name, None)
+
+    backend = os.environ.get("GDK_BACKEND", "")
+    if os.environ.get("WAYLAND_DISPLAY") and os.environ.get("DISPLAY"):
+        if not backend or any(item in ("wayland", "*") for item in backend.split(",")):
+            # The GTK 3 Wayland backend expects keys absent from recent GNOME schemas.
+            os.environ["GDK_BACKEND"] = "x11"
+
+
+_prepare_gtk_environment()
+
 import gi
 
 gi.require_version("Gtk", "3.0")
@@ -280,6 +322,7 @@ class Window(Gtk.Window):
         dialog.run()
         dialog.destroy()
         self.refresh()
+        
 
 
 def main():
